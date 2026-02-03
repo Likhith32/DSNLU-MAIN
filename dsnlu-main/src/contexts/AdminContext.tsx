@@ -1,28 +1,24 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext } from "react";
+import { useSearchParams } from "next/navigation";
 
-const AdminContext = createContext<any>(null);
+type AdminContextType = {
+  isAdminMode: boolean;
+};
+
+const AdminContext = createContext<AdminContextType>({
+  isAdminMode: false,
+});
 
 export function AdminProvider({ children }: { children: React.ReactNode }) {
-  const [isAdminMode, setIsAdminMode] = useState(false);
+  const searchParams = useSearchParams();
 
-  useEffect(() => {
-    // 🔥 Check URL param
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("admin") === "true") {
-      setIsAdminMode(true);
-      localStorage.setItem("admin", "true");
-    }
-
-    // 🔥 Persist after refresh
-    if (localStorage.getItem("admin") === "true") {
-      setIsAdminMode(true);
-    }
-  }, []);
+  // ✅ Admin ONLY when ?admin=true is present
+  const isAdminMode = searchParams.get("admin") === "true";
 
   return (
-    <AdminContext.Provider value={{ isAdminMode, setIsAdminMode }}>
+    <AdminContext.Provider value={{ isAdminMode }}>
       {children}
     </AdminContext.Provider>
   );
